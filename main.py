@@ -1,15 +1,12 @@
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 import pandas as pd
 import time
 
 DRIVER_PATH = r"C:\Users\hp\Desktop\google-business-scrapper\chromedriver.exe"
 CITIES = ["Ahmedabad",
-        "Indore",
-        "Vadodara",
-        "Surat",
-        "Jaipur",
-        "Lucknow",
-        "Mumbai"
+        "Kolkata",
+        "Chennai",
         ]
 
 for city in CITIES:
@@ -22,6 +19,9 @@ for city in CITIES:
         
         try:
             search_btn = driver.find_element_by_xpath('//*[@id="Odp5De"]/div/div/div[2]/div[1]/div[2]/g-more-link/a')
+            search_btn.click()
+        except NoSuchElementException:
+            search_btn = driver.find_element_by_xpath('//*[@class="CHn7Qb pYouzb"]')
             search_btn.click()
         except Exception as e:
             print(f'Error in {city} --> {e}')
@@ -36,6 +36,8 @@ for city in CITIES:
             time.sleep(5)
             businesses = driver.find_elements_by_xpath('//*[@class="cXedhc"]')
             
+            if len(businesses) > 20:
+                businesses = businesses[2:]
 
             for business in businesses:
                 business.click()
@@ -77,6 +79,7 @@ for city in CITIES:
             page += 1
     except Exception as e:
         print(f'Exception --> {e}')
+        continue
     finally:
         driver.quit()
 
