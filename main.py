@@ -30,9 +30,9 @@ for city in CITIES:
         page = 1
         data = []
         
-        print(f'******* Page {page} in {city} *******')
         
         while page < 11:
+            print(f'******* Page {page} in {city} *******')
             time.sleep(5)
             businesses = driver.find_elements_by_xpath('//*[@class="cXedhc"]')
             
@@ -85,6 +85,6 @@ for city in CITIES:
         headerList=['Company','Type of Business','Rating','Review Count','Address','Phone','Website']
         file_name = f'{city}.csv'	
         my_df.to_csv(file_name, index=False, header=headerList)
-    except:
+    except Exception as e:
         print(f'Error in Pandas in {city} --> {e}')
 
