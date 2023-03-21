@@ -4,13 +4,10 @@ import pandas as pd
 import time
 
 DRIVER_PATH = r"C:\Users\hp\Desktop\google-business-scrapper\chromedriver.exe"
-CITIES = ["Ahmedabad",
-        "Kolkata",
-        "Chennai",
-        ]
+CITIES = ["Mumbai", "Bangalore", "Delhi", "Gurgaon", "Noida", "Chennai"]
 
 for city in CITIES:
-    QUERY_URL = f"https://www.google.com/search?q=recruitment+agencies+in+{city.lower()}"
+    QUERY_URL = f"https://www.google.com/search?q=staffing+companies+in+{city.lower()}"
     
     try:
         driver = webdriver.Chrome(executable_path=DRIVER_PATH)
@@ -43,7 +40,10 @@ for city in CITIES:
                 business.click()
                 time.sleep(5)
                 
-                name = driver.find_element_by_xpath('//*[@class="SPZz6b"]').text
+                try:
+                    name = driver.find_element_by_xpath('//*[@class="SPZz6b"]').text
+                except:
+                    continue
                 try:
                     type = driver.find_element_by_xpath('//*[@class="YhemCb"]').text
                 except:
@@ -74,9 +74,12 @@ for city in CITIES:
                 # print(phone, website)
                 data.append([name, type, rating, review_count, address, phone, website])
             
-            next_page = driver.find_element_by_xpath('//*[@id="pnnext"]')
-            next_page.click()
-            page += 1
+            try:
+                next_page = driver.find_element_by_xpath('//*[@id="pnnext"]')
+                next_page.click()
+                page += 1
+            except NoSuchElementException:
+                break
     except Exception as e:
         print(f'Exception --> {e}')
         continue
@@ -86,7 +89,7 @@ for city in CITIES:
     try:
         my_df = pd.DataFrame(data)
         headerList=['Company','Type of Business','Rating','Review Count','Address','Phone','Website']
-        file_name = f'{city}.csv'	
+        file_name = f'staffing/{city}.csv'	
         my_df.to_csv(file_name, index=False, header=headerList)
     except Exception as e:
         print(f'Error in Pandas in {city} --> {e}')
