@@ -7,7 +7,9 @@ DRIVER_PATH = r"C:\Users\hp\Desktop\google-business-scrapper\chromedriver.exe"
 CITIES = ["Mumbai", "Bangalore", "Delhi", "Gurgaon", "Noida", "Chennai"]
 
 for city in CITIES:
-    QUERY_URL = f"https://www.google.com/search?q=staffing+companies+in+{city.lower()}"
+    QUERY = '' # Write here what you want to search
+    
+    QUERY_URL = f"https://www.google.com/search?q={QUERY.lower().replace(' ', '+')}+in+{city.lower()}"
     
     try:
         driver = webdriver.Chrome(executable_path=DRIVER_PATH)
@@ -89,7 +91,7 @@ for city in CITIES:
     try:
         my_df = pd.DataFrame(data)
         headerList=['Company','Type of Business','Rating','Review Count','Address','Phone','Website']
-        file_name = f'staffing/{city}.csv'	
+        file_name = f'{QUERY.lower()}/{city}.csv'	
         my_df.to_csv(file_name, index=False, header=headerList)
     except Exception as e:
         print(f'Error in Pandas in {city} --> {e}')
