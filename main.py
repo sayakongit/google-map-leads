@@ -3,11 +3,11 @@ from selenium.common.exceptions import NoSuchElementException
 import pandas as pd
 import time
 
-DRIVER_PATH = r"C:\Users\hp\Desktop\google-business-scrapper\chromedriver.exe"
-CITIES = ["Mumbai", "Bangalore", "Delhi", "Gurgaon", "Noida", "Chennai"]
+DRIVER_PATH = r"C:\Users\hp\Downloads\chromedriver_win32\chromedriver.exe"
+CITIES = ["India"]
 
 for city in CITIES:
-    QUERY = '' # Write here what you want to search
+    QUERY = 'payroll contract staffing Engineering technical staffing businesses' # Write here what you want to search
     
     QUERY_URL = f"https://www.google.com/search?q={QUERY.lower().replace(' ', '+')}+in+{city.lower()}"
     
@@ -15,12 +15,13 @@ for city in CITIES:
         driver = webdriver.Chrome(executable_path=DRIVER_PATH)
         driver.maximize_window()
         driver.get(QUERY_URL)
+        time.sleep(5)
         
         try:
-            search_btn = driver.find_element_by_xpath('//*[@id="Odp5De"]/div/div/div[2]/div[1]/div[2]/g-more-link/a')
+            search_btn = driver.find_element_by_xpath('//*[@class="CHn7Qb pYouzb"]')
             search_btn.click()
         except NoSuchElementException:
-            search_btn = driver.find_element_by_xpath('//*[@class="CHn7Qb pYouzb"]')
+            search_btn = driver.find_element_by_xpath('//*[@id="rso"]/div[3]/div/div/div[1]/div[5]/div/div[1]/a/div')
             search_btn.click()
         except Exception as e:
             print(f'Error in {city} --> {e}')
@@ -33,51 +34,28 @@ for city in CITIES:
         while page < 11:
             print(f'******* Page {page} in {city} *******')
             time.sleep(5)
-            businesses = driver.find_elements_by_xpath('//*[@class="cXedhc"]')
+            businesses = driver.find_elements_by_xpath('//*[@data-test-id="organic-list-card"]')
             
             if len(businesses) > 20:
                 businesses = businesses[2:]
-
+                
+            print(f'Found {len(businesses)} businesses')
             for business in businesses:
+                print('Clicking')
                 business.click()
                 time.sleep(5)
                 
                 try:
-                    name = driver.find_element_by_xpath('//*[@class="SPZz6b"]').text
+                    name = driver.find_element_by_xpath('//*[@class="rgnuSb tZPcob"]').text
                 except:
                     continue
-                try:
-                    type = driver.find_element_by_xpath('//*[@class="YhemCb"]').text
-                except:
-                    type = 'NA'
-                try:
-                    review_count = driver.find_element_by_xpath('//*[@class="Ob2kfd"]//span[@class="RDApEe YrbPuc"]').text
-                    review_count = review_count.translate({ord(i): None for i in '()'})
-                except:
-                    review_count = 'NA'
-                try:
-                    rating = driver.find_element_by_xpath('//*[@class="Ob2kfd"]//span[@class="yi40Hd YrbPuc"]').text
-                except:
-                    rating = 'NA'
-                try:
-                    address = driver.find_element_by_xpath('//*[@class="LrzXr"]').text
-                except:
-                    address = 'NA'
-                try:
-                    phone = driver.find_element_by_xpath('//*[@class="LrzXr zdqRlf kno-fv"]').text
-                except:
-                    phone = 'NA'
-                try:
-                    website = driver.find_element_by_xpath('//a[@class="dHS6jb"]').get_attribute('href')
-                except:
-                    website = 'NA'
                     
                 
-                # print(phone, website)
-                data.append([name, type, rating, review_count, address, phone, website])
+                print(name)
+                data.append([name])
             
             try:
-                next_page = driver.find_element_by_xpath('//*[@id="pnnext"]')
+                next_page = driver.find_element_by_xpath('//*[@class="VfPpkd-LgbsSe VfPpkd-LgbsSe-OWXEXe-INsAgc VfPpkd-LgbsSe-OWXEXe-dgl2Hf Rj2Mlf OLiIxf PDpWxe P62QJc LQeN7 sspfN Ehmv4e cLUxtc"]')
                 next_page.click()
                 page += 1
             except NoSuchElementException:
@@ -90,8 +68,8 @@ for city in CITIES:
 
     try:
         my_df = pd.DataFrame(data)
-        headerList=['Company','Type of Business','Rating','Review Count','Address','Phone','Website']
-        file_name = f'{QUERY.lower()}/{city}.csv'	
+        headerList=['Company']
+        file_name = f'companies.csv'	
         my_df.to_csv(file_name, index=False, header=headerList)
     except Exception as e:
         print(f'Error in Pandas in {city} --> {e}')
